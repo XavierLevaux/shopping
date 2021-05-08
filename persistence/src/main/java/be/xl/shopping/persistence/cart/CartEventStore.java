@@ -2,8 +2,8 @@ package be.xl.shopping.persistence.cart;
 
 import be.xl.eventsourcing.eventstore.EventStore;
 import be.xl.eventsourcing.model.DomainEvents;
-import be.xl.shopping.domain.cart.Cart;
-import be.xl.shopping.domain.cart.CartId;
+import be.xl.shopping.domain.core.cart.entity.Cart;
+import be.xl.shopping.domain.core.cart.entity.CartId;
 import java.util.Optional;
 
 public class CartEventStore implements EventStore<Cart, CartId> {

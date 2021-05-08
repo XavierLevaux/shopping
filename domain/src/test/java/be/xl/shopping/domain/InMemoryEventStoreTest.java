@@ -1,14 +1,14 @@
 package be.xl.shopping.domain;
 
-import static be.xl.shopping.domain.cart.CartCreated.CartCreatedBuilder.cartCreated;
-import static be.xl.shopping.domain.cart.ProductAddedToCart.ProductAddedToCartBuilder.productAddedToCart;
+import static be.xl.shopping.domain.core.cart.event.CartCreated.CartCreatedBuilder.cartCreated;
+import static be.xl.shopping.domain.core.cart.event.ProductAddedToCart.ProductAddedToCartBuilder.productAddedToCart;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import be.xl.eventsourcing.model.DomainEvents;
-import be.xl.shopping.domain.cart.Cart;
-import be.xl.shopping.domain.cart.CartCreated;
-import be.xl.shopping.domain.cart.CartId;
-import be.xl.shopping.domain.cart.ProductAddedToCart;
+import be.xl.shopping.domain.core.cart.entity.Cart;
+import be.xl.shopping.domain.core.cart.event.CartCreated;
+import be.xl.shopping.domain.core.cart.entity.CartId;
+import be.xl.shopping.domain.core.cart.event.ProductAddedToCart;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
