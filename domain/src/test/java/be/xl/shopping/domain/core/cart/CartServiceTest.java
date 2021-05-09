@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import be.xl.eventsourcing.eventstore.EventStore;
 import be.xl.eventsourcing.model.DomainEvents;
-import be.xl.shopping.domain.InMemoryEventStore;
+import be.xl.shopping.domain.port.infrastructure.InMemoryEventStore;
 import be.xl.shopping.domain.core.cart.entity.Cart;
 import be.xl.shopping.domain.core.cart.entity.CartId;
 import be.xl.shopping.domain.core.cart.event.CartCreated;
@@ -70,7 +70,7 @@ class CartServiceTest {
       private final UUID productId = UUID.randomUUID();
 
       public when_I_have_a_cart_with_a_product() {
-         cartEventStore.saveNewAggregate(CartId.of(cartId), DomainEvents.<Cart, CartId>domainEvents(0L)
+         cartEventStore.saveNewAggregate(CartId.of(cartId), DomainEvents.<Cart, CartId>domainEvents(CartId.of(cartId),0L)
              .withEvent(cartCreated(cartId, customerId))
              .withEvent(productAddedToCart(cartId, customerId, productId, 5)));
       }

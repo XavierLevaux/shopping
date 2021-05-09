@@ -10,9 +10,11 @@ import org.jmolecules.ddd.types.Identifier;
 
 public class DomainEvents<T extends AggregateRoot<T, ID>, ID extends Identifier>  implements EventStream<T, ID> {
    private final List<DomainEvent<T>> events;
+   private ID aggregateId;
    private final Long version;
 
-   public DomainEvents(Long aggregateVersion) {
+   public DomainEvents(ID aggregateId, Long aggregateVersion) {
+      this.aggregateId = aggregateId;
       this.version = aggregateVersion;
       this.events = Collections.emptyList();
    }
@@ -22,8 +24,8 @@ public class DomainEvents<T extends AggregateRoot<T, ID>, ID extends Identifier>
       this.events = events;
    }
 
-   public static <T extends AggregateRoot<T, ID>, ID extends Identifier> DomainEvents<T, ID> domainEvents(Long aggregateVersion) {
-      return new DomainEvents<>(aggregateVersion);
+   public static <T extends AggregateRoot<T, ID>, ID extends Identifier> DomainEvents<T, ID> domainEvents(ID aggregateId, Long aggregateVersion) {
+      return new DomainEvents<>(aggregateId, aggregateVersion);
    }
 
    long getNextVersion() {
@@ -56,6 +58,11 @@ public class DomainEvents<T extends AggregateRoot<T, ID>, ID extends Identifier>
    @Override
    public long getAggregateVersion() {
       return version;
+   }
+
+   @Override
+   public ID getAggregateId() {
+      return aggregateId;
    }
 
    @Override

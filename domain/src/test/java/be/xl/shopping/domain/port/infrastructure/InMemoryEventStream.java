@@ -1,4 +1,4 @@
-package be.xl.shopping.domain.core.cart;
+package be.xl.shopping.domain.port.infrastructure;
 
 import be.xl.eventsourcing.eventstore.EventStream;
 import be.xl.eventsourcing.model.DomainEvent;
@@ -36,6 +36,11 @@ public class InMemoryEventStream<T extends AggregateRoot<T, ID>, ID extends Iden
 
    @Override
    public long getAggregateVersion() {
+      throw new IllegalStateException("Not yet implemented!");
+   }
+
+   @Override
+   public ID getAggregateId() {
       throw new IllegalStateException("Not yet implemented!");
    }
 }

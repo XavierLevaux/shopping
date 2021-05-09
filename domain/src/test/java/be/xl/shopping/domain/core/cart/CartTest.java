@@ -11,6 +11,7 @@ import be.xl.shopping.domain.core.cart.event.CartCreated;
 import be.xl.shopping.domain.core.cart.event.ProductAddedToCart;
 import be.xl.shopping.domain.core.catalog.entity.ProductId;
 import be.xl.shopping.domain.core.customer.entity.CustomerId;
+import be.xl.shopping.domain.port.infrastructure.InMemoryEventStream;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayNameGeneration;

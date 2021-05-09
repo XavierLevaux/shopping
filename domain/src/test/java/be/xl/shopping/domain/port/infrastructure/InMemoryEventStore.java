@@ -1,4 +1,4 @@
-package be.xl.shopping.domain;
+package be.xl.shopping.domain.port.infrastructure;
 
 import be.xl.eventsourcing.eventstore.EventStore;
 import be.xl.eventsourcing.model.DomainEvents;

@@ -6,6 +6,7 @@ import static be.xl.shopping.domain.core.cart.event.ProductQuantityRemovedFromCa
 import static be.xl.shopping.domain.core.cart.event.ProductRemovedFromCart.ProductRemovedFromCartBuilder.productRemovedFromCart;
 
 import be.xl.eventsourcing.eventstore.EventStream;
+import be.xl.eventsourcing.model.DomainBusinessException;
 import be.xl.eventsourcing.model.DomainEvent;
 import be.xl.eventsourcing.model.DomainEvents;
 import be.xl.shopping.domain.core.cart.event.CartCreated;
@@ -42,35 +43,35 @@ public class Cart implements AggregateRoot<Cart, CartId> {
    }
 
    public static DomainEvents<Cart, CartId> createCart(CartId cartId, CustomerId customerId) {
-      return new DomainEvents<Cart, CartId>(0L)
+      return new DomainEvents<Cart, CartId>(cartId, 0L)
           .withEvent(cartCreated(cartId.getId(), customerId.getId()));
    }
 
    public DomainEvents<Cart, CartId> addProduct(ProductId productId, int quantity) {
       if (quantity <= 0) {
-         throw new IllegalArgumentException("Add a positive quantity!");
+         throw new DomainBusinessException(cartId.id, "Add a positive quantity!");
       }
-      return new DomainEvents<Cart, CartId>(version)
+      return new DomainEvents<Cart, CartId>(getId(), version)
           .withEvent(
-              productAddedToCart(cartId.getId(), customerId.getId(), productId.getId(), quantity));
+              productAddedToCart(cartId.id, customerId.getId(), productId.getId(), quantity));
    }
 
    public DomainEvents<Cart, CartId> removeProduct(ProductId productId, int quantityToRemove) {
       if (quantityToRemove <= 0) {
-         throw new IllegalArgumentException("Add a positive quantity!");
+         throw new DomainBusinessException(cartId.id, "Add a positive quantity!");
       }
       Integer quantityOfProductInCart = cartItems.getProductQuantity(productId)
           .orElseThrow(() -> new IllegalStateException("Product is not in cart"));
       if (quantityOfProductInCart < quantityToRemove) {
-         throw new IllegalStateException("You cannot remove more quantity then content of cart");
+         throw new DomainBusinessException(cartId.id, "You cannot remove more quantity then content of cart");
       }
       if (quantityOfProductInCart == quantityToRemove) {
-         return new DomainEvents<Cart, CartId>(version)
+         return new DomainEvents<Cart, CartId>(cartId, version)
              .withEvent(
-                 productRemovedFromCart(cartId.getId(), customerId.getId(), productId.getId()));
+                 productRemovedFromCart(cartId.id, customerId.getId(), productId.getId()));
       } else {
-         return new DomainEvents<Cart, CartId>(version)
-             .withEvent(productQuantityRemovedFromCart(cartId.getId(), customerId.getId(),
+         return new DomainEvents<Cart, CartId>(cartId, version)
+             .withEvent(productQuantityRemovedFromCart(cartId.id, customerId.getId(),
                  productId.getId(), quantityToRemove));
       }
    }
@@ -84,7 +85,7 @@ public class Cart implements AggregateRoot<Cart, CartId> {
       for (DomainEvent<Cart> event : eventStream) {
          if (cart == null) {
             if (!event.getType().equals(CartCreated.TYPE)) {
-               throw new IllegalStateException(
+               throw new DomainBusinessException(eventStream.getAggregateId().id,
                    String.format("First event should be %s", CartCreated.TYPE));
             }
             cart = Cart.apply((CartCreated) event);
