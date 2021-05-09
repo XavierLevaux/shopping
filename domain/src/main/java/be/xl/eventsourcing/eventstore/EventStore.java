@@ -1,10 +1,12 @@
 package be.xl.eventsourcing.eventstore;
 
+import be.xl.architecture.Port;
 import be.xl.eventsourcing.model.DomainEvents;
 import java.util.Optional;
 import org.jmolecules.ddd.types.AggregateRoot;
 import org.jmolecules.ddd.types.Identifier;
 
+@Port
 public interface EventStore<T extends AggregateRoot<T, ID>, ID extends Identifier> {
 
 

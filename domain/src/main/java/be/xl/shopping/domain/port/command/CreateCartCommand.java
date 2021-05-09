@@ -1,4 +1,4 @@
-package be.xl.shopping.domain.left.command;
+package be.xl.shopping.domain.port.command;
 
 import be.xl.eventsourcing.model.Command;
 import java.util.UUID;

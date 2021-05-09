@@ -6,9 +6,9 @@ import be.xl.shopping.domain.core.cart.entity.Cart;
 import be.xl.shopping.domain.core.cart.entity.CartId;
 import be.xl.shopping.domain.core.catalog.entity.ProductId;
 import be.xl.shopping.domain.core.customer.entity.CustomerId;
-import be.xl.shopping.domain.left.command.AddProductToCartCommand;
-import be.xl.shopping.domain.left.command.CreateCartCommand;
-import be.xl.shopping.domain.left.command.RemoveProductFromCartCommand;
+import be.xl.shopping.domain.port.command.AddProductToCartCommand;
+import be.xl.shopping.domain.port.command.CreateCartCommand;
+import be.xl.shopping.domain.port.command.RemoveProductFromCartCommand;
 import java.util.UUID;
 
 public class CartService {
