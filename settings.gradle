@@ -1,4 +1,5 @@
 rootProject.name = 'shopping'
 include 'domain'
 include 'persistence'
+include 'architecture'
 

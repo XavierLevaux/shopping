@@ -1,0 +1,6 @@
+#spring:
+#  application:
+#    name: shopping-service
+#
+#server:
+#  port: 9000

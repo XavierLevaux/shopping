@@ -1,6 +1,6 @@
 /**
  * This module contains the ports to abstract from the infrastructure
- * used by the core of the hexagon in the hexagonal architecture:
+ * used by the core of the hexagon in the hexagonal be.xl.architecture:
  * https://awesomeopensource.com/project/Sairyss/domain-driven-hexagon#Application-Services
  *
  * <p>

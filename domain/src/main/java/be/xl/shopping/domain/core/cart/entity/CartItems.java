@@ -1,6 +1,5 @@
 package be.xl.shopping.domain.core.cart.entity;
 
-import be.xl.shopping.domain.core.catalog.entity.ProductId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +23,7 @@ public class CartItems {
       List<CartItem> newItems = new ArrayList<>();
       boolean productFound = false;
       for (CartItem item : items) {
-         if (item.getProductId().equals(productId)) {
+         if (item.productId().equals(productId)) {
             productFound = true;
             newItems.add(item.addQuantity(quantity));
          } else {
@@ -32,7 +31,7 @@ public class CartItems {
          }
       }
       if (!productFound) {
-         newItems.add(CartItem.cartItem(productId, quantity));
+         newItems.add(new CartItem(productId, quantity));
       }
       return new CartItems(newItems);
    }
@@ -42,15 +41,15 @@ public class CartItems {
    }
 
    public Optional<Integer> getProductQuantity(ProductId productId) {
-      return items.stream().filter(cartItem -> cartItem.getProductId().equals(productId))
-          .map(CartItem::getQuantity).findFirst();
+      return items.stream().filter(cartItem -> cartItem.productId().equals(productId))
+          .map(CartItem::quantity).findFirst();
    }
 
    public CartItems removeProduct(ProductId productId, Integer quantity) {
       List<CartItem> newItems = new ArrayList<>();
       items.forEach(cartItem -> newItems.add(
-          cartItem.getProductId().equals(productId) ?
-              CartItem.cartItem(productId, cartItem.getQuantity() - quantity) :
+          cartItem.productId().equals(productId) ?
+              new CartItem(productId, cartItem.quantity() - quantity) :
               cartItem)
       );
       return new CartItems(newItems);

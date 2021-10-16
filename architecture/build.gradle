@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group 'be.xl'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation('org.jmolecules:jmolecules-ddd:1.2.0')
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testImplementation('org.assertj:assertj-core:3.19.0')
+}
+
+test {
+    useJUnitPlatform()
+}

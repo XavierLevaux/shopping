@@ -10,8 +10,8 @@ class CustomerIdTest {
    @Test
    void when_customer_id_is_created_i_get_its_id() {
       UUID uuid = UUID.randomUUID();
-      CustomerId customerId = CustomerId.of(uuid);
+      CustomerId customerId = new CustomerId(uuid);
 
-      assertThat(customerId.getId()).isEqualTo(uuid);
+      assertThat(customerId.id()).isEqualTo(uuid);
    }
 }

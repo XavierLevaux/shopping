@@ -1,10 +1,10 @@
 package be.xl.shopping.domain.core.cart;
 
-import be.xl.eventsourcing.eventstore.EventStore;
-import be.xl.eventsourcing.model.DomainEvents;
+import be.xl.architecture.eventsourcing.eventstore.EventStore;
+import be.xl.architecture.eventsourcing.model.DomainEvents;
 import be.xl.shopping.domain.core.cart.entity.Cart;
 import be.xl.shopping.domain.core.cart.entity.CartId;
-import be.xl.shopping.domain.core.catalog.entity.ProductId;
+import be.xl.shopping.domain.core.cart.entity.ProductId;
 import be.xl.shopping.domain.core.customer.entity.CustomerId;
 import be.xl.shopping.domain.port.command.AddProductToCartCommand;
 import be.xl.shopping.domain.port.command.CreateCartCommand;
@@ -22,27 +22,27 @@ public class CartService {
 
    public void handleCreateCart(CreateCartCommand command) {
       DomainEvents<Cart, CartId> domainEvents = Cart
-          .createCart(CartId.of(command.cartId), CustomerId.of(command.customerId));
-      eventStore.saveNewAggregate(CartId.of(command.cartId), domainEvents);
+          .createCart(new CartId(command.cartId()), new CustomerId(command.customerId()));
+      eventStore.saveNewAggregate(new CartId(command.cartId()), domainEvents);
    }
 
    public void handleAddProductToCart(AddProductToCartCommand command) {
-      Cart cart = getCart(command.cartId);
-      eventStore.updateExistingAggregate(CartId.of(command.cartId), cart.getVersion(),
-          cart.addProduct(ProductId.of(command.productId), command.quantity));
+      Cart cart = getCart(command.cartId());
+      eventStore.updateExistingAggregate(new CartId(command.cartId()),
+          cart.addProduct(new ProductId(command.productId()), command.quantity()));
    }
 
    private Cart getCart(UUID cartId) {
-      DomainEvents<Cart, CartId> domainEvents = eventStore.loadEvents(CartId.of(cartId))
+      DomainEvents<Cart, CartId> domainEvents = eventStore.loadEvents(new CartId(cartId))
           .orElseThrow(() -> new RuntimeException("No events found for re-hydrating"));
       return Cart.reHydrate(domainEvents);
    }
 
 
    public void handleRemoveProductFromCart(RemoveProductFromCartCommand command) {
-      Cart cart = getCart(command.cartId);
-      eventStore.updateExistingAggregate(CartId.of(command.cartId), cart.getVersion(),
-          cart.removeProduct(ProductId.of(command.productId), command.quantity));
+      Cart cart = getCart(command.cartId());
+      eventStore.updateExistingAggregate(new CartId(command.cartId()),
+          cart.removeProduct(new ProductId(command.productId()), command.quantity()));
    }
 
 }
