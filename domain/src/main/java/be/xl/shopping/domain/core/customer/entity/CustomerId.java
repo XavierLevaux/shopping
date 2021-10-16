@@ -1,12 +1,13 @@
 package be.xl.shopping.domain.core.customer.entity;
 
+import be.xl.architecture.eventsourcing.model.AggregateIdentifier;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import org.jmolecules.ddd.types.Identifier;
 
-@Value
-@RequiredArgsConstructor(staticName = "of")
-public class CustomerId implements Identifier {
-   UUID id;
+public record CustomerId(UUID id) implements AggregateIdentifier {
+   public static final String AGGREGATE_ROOT_NAME = "Shopping.Customer";
+
+   @Override
+   public String getAggregateName() {
+      return AGGREGATE_ROOT_NAME;
+   }
 }

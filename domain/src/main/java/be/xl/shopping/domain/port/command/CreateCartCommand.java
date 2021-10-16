@@ -1,18 +1,9 @@
 package be.xl.shopping.domain.port.command;
 
-import be.xl.eventsourcing.model.Command;
+import be.xl.architecture.Command;
 import java.util.UUID;
 
-public class CreateCartCommand implements Command {
-
-   public final UUID cartId;
-   public final UUID customerId;
-
-   public CreateCartCommand(UUID cartId,
-       UUID customerId) {
-      this.cartId = cartId;
-      this.customerId = customerId;
-   }
+public record CreateCartCommand(UUID cartId, UUID customerId) implements Command {
 
    @Override
    public UUID aggregateId() {

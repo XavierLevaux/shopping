@@ -1,16 +1,19 @@
 package be.xl.shopping.domain.core.cart;
 
+import static be.xl.architecture.eventsourcing.model.Version.version;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import be.xl.eventsourcing.model.DomainEvent;
-import be.xl.eventsourcing.model.DomainEvents;
+import be.xl.architecture.eventsourcing.eventstore.EventStore;
+import be.xl.architecture.eventsourcing.model.DomainEvents;
+import be.xl.architecture.eventsourcing.model.Version;
 import be.xl.shopping.domain.core.cart.entity.Cart;
 import be.xl.shopping.domain.core.cart.entity.CartId;
 import be.xl.shopping.domain.core.cart.entity.CartItem;
+import be.xl.shopping.domain.core.cart.entity.ProductId;
 import be.xl.shopping.domain.core.cart.event.CartCreated;
 import be.xl.shopping.domain.core.cart.event.ProductAddedToCart;
-import be.xl.shopping.domain.core.catalog.entity.ProductId;
 import be.xl.shopping.domain.core.customer.entity.CustomerId;
+import be.xl.shopping.domain.port.infrastructure.InMemoryEventStore;
 import be.xl.shopping.domain.port.infrastructure.InMemoryEventStream;
 import java.util.List;
 import java.util.UUID;
@@ -22,8 +25,8 @@ import org.junit.jupiter.api.Test;
 @DisplayNameGeneration(ReplaceUnderscores.class)
 class CartTest {
 
-   private final CustomerId customerId = CustomerId.of(UUID.randomUUID());
-   private final CartId cartId = CartId.of(UUID.randomUUID());
+   private final CustomerId customerId = new CustomerId(UUID.randomUUID());
+   private final CartId cartId = new CartId(UUID.randomUUID());
 
    @Nested
    class when_a_cart_is_created {
@@ -36,9 +39,9 @@ class CartTest {
 
       @Test
       void then_a_CartCreatedEvent_is_emitted() {
-         assertThat(domainEvents.getEvents()).hasSize(1);
-         assertThat(domainEvents.getEvents()).containsExactly(
-             new CartCreated(cartId.getId(), customerId.getId(), 1L)
+         assertThat(domainEvents.events()).hasSize(1);
+         assertThat(domainEvents.events()).containsExactly(
+             new CartCreated(cartId.id(), customerId.id(), new Version(1))
          );
       }
    }
@@ -47,9 +50,12 @@ class CartTest {
    class when_I_apply_CartCreatedEvent_I_get_a_cart {
 
       private final Cart cart;
+      private final EventStore<Cart, CartId> eventStore = new InMemoryEventStore<>();
+
 
       public when_I_apply_CartCreatedEvent_I_get_a_cart() {
-         cart = Cart.apply(new CartCreated(cartId.getId(), customerId.getId(), 0L));
+         eventStore.saveNewAggregate(cartId, Cart.createCart(cartId, customerId));
+         cart = Cart.reHydrate(eventStore.loadEvents(cartId).orElseThrow());
       }
 
       @Test
@@ -64,16 +70,20 @@ class CartTest {
    class when_I_have_an_existing_empty_cart {
 
       private final Cart cart;
+      private final EventStore<Cart, CartId> cartEventStore = new InMemoryEventStore<>();
 
       public when_I_have_an_existing_empty_cart() {
-         cart = Cart.apply(new CartCreated(cartId.getId(), customerId.getId(), 0L));
+         DomainEvents<Cart, CartId> domainEvents = Cart.createCart(cartId, customerId);
+         cartEventStore.saveNewAggregate(cartId, domainEvents);
+
+         cart = Cart.reHydrate(domainEvents);
       }
 
       @Nested
       class and_I_add_a_product_to_the_cart {
 
          private final int addedQuantity = 3;
-         private final ProductId addedProductId = ProductId.of(UUID.randomUUID());
+         private final ProductId addedProductId = new ProductId(UUID.randomUUID());
          private final DomainEvents<Cart, CartId> domainEvents;
 
          public and_I_add_a_product_to_the_cart() {
@@ -82,10 +92,10 @@ class CartTest {
 
          @Test
          void then_there_is_one_ProductAddedToCart_returned() {
-            assertThat(domainEvents.getEvents()).hasSize(1);
-            assertThat(domainEvents.getEvents()).containsExactly(
-                new ProductAddedToCart(cartId.getId(), customerId.getId(), addedProductId.getId(),
-                    addedQuantity, 2L)
+            assertThat(domainEvents.events()).hasSize(1);
+            assertThat(domainEvents.events()).containsExactly(
+                new ProductAddedToCart(cartId.id(), customerId.id(), addedProductId.id(),
+                    addedQuantity, new Version(2))
             );
          }
       }
@@ -95,12 +105,18 @@ class CartTest {
    class when_I_have_an_existing_cart_with_one_product {
 
       private Cart cart;
+      private final EventStore<Cart, CartId> eventStore = new InMemoryEventStore<>();
       private final int existingQuantity = 3;
-      private final ProductId existingProductId = ProductId.of(UUID.randomUUID());
+      private final ProductId existingProductId = new ProductId(UUID.randomUUID());
 
       public when_I_have_an_existing_cart_with_one_product() {
-         cart = Cart.apply(new CartCreated(customerId.getId(), cartId.getId(), 1L));
-         cart = cart.applyAll(cart.addProduct(existingProductId, existingQuantity).getEvents());
+         eventStore.saveNewAggregate(cartId, Cart.createCart(cartId, customerId));
+         cart = Cart.reHydrate(eventStore.loadEvents(cartId).orElseThrow());
+         eventStore.updateExistingAggregate(
+             cartId,
+             cart.addProduct(existingProductId, existingQuantity)
+         );
+         cart = Cart.reHydrate(eventStore.loadEvents(cartId).orElseThrow());
       }
 
 
@@ -108,15 +124,18 @@ class CartTest {
       class and_I_remove_the_same_product_with_existing_quantity_minus_1 {
 
          public and_I_remove_the_same_product_with_existing_quantity_minus_1() {
-            cart = cart
-                .applyAll(cart.removeProduct(existingProductId, existingQuantity - 1).getEvents());
+            eventStore.updateExistingAggregate(
+                cartId,
+                cart.removeProduct(existingProductId, existingQuantity - 1)
+            );
+            cart = Cart.reHydrate(eventStore.loadEvents(cartId).orElseThrow());
          }
 
          @Test
          void then_the_cart_item_quantity_is_adapted_for_product() {
             assertThat(cart.getContent()).hasSize(1);
             assertThat(cart.getContent()).containsExactly(
-                CartItem.cartItem(existingProductId, 1)
+                new CartItem(existingProductId, 1)
             );
          }
       }
@@ -127,14 +146,18 @@ class CartTest {
          private final int addedQuantity = 2;
 
          public and_I_add_the_same_product() {
-            cart = cart.applyAll(cart.addProduct(existingProductId, addedQuantity).getEvents());
+            eventStore.updateExistingAggregate(
+                cartId,
+                cart.addProduct(existingProductId, addedQuantity)
+            );
+            cart = Cart.reHydrate(eventStore.loadEvents(cartId).orElseThrow());
          }
 
          @Test
          void then_the_cart_item_quantity_is_adapted_for_product() {
             assertThat(cart.getContent()).hasSize(1);
             assertThat(cart.getContent()).containsExactly(
-                CartItem.cartItem(existingProductId, existingQuantity + addedQuantity)
+                new CartItem(existingProductId, existingQuantity + addedQuantity)
             );
          }
       }
@@ -143,15 +166,18 @@ class CartTest {
       class and_I_remove_the_same_product_by_quantity_in_cart_minus_one {
 
          public and_I_remove_the_same_product_by_quantity_in_cart_minus_one() {
-            cart = cart
-                .applyAll(cart.removeProduct(existingProductId, existingQuantity - 1).getEvents());
+            eventStore.updateExistingAggregate(
+                cartId,
+                cart.removeProduct(existingProductId, existingQuantity - 1)
+            );
+            cart = Cart.reHydrate(eventStore.loadEvents(cartId).orElseThrow());
          }
 
          @Test
          void then_the_cart_item_quantity_is_adapted_for_product() {
             assertThat(cart.getContent()).hasSize(1);
             assertThat(cart.getContent()).containsExactly(
-                CartItem.cartItem(existingProductId, 1)
+                new CartItem(existingProductId, 1)
             );
          }
       }
@@ -159,22 +185,23 @@ class CartTest {
       @Nested
       class and_I_add_another_product {
 
-         Cart nestedCart = cart;
-
          private final int addedQuantity = 2;
-         private final ProductId otherProductId = ProductId.of(UUID.randomUUID());
+         private final ProductId otherProductId = new ProductId(UUID.randomUUID());
 
          public and_I_add_another_product() {
-            nestedCart = nestedCart
-                .applyAll(cart.addProduct(otherProductId, addedQuantity).getEvents());
+            eventStore.updateExistingAggregate(
+                cartId,
+                cart.addProduct(otherProductId, addedQuantity)
+            );
          }
 
          @Test
          void then_the_cart_item_quantity_is_adapted_for_product() {
-            assertThat(nestedCart.getContent()).hasSize(2);
-            assertThat(nestedCart.getContent()).containsExactly(
-                CartItem.cartItem(existingProductId, existingQuantity),
-                CartItem.cartItem(otherProductId, addedQuantity)
+            Cart cart = Cart.reHydrate(eventStore.loadEvents(cartId).orElseThrow());
+            assertThat(cart.getContent()).hasSize(2);
+            assertThat(cart.getContent()).containsExactly(
+                new CartItem(existingProductId, existingQuantity),
+                new CartItem(otherProductId, addedQuantity)
             );
          }
       }
@@ -184,30 +211,27 @@ class CartTest {
    @Nested
    class when_I_rehydrate_cart_from_two_events {
 
-      protected final ProductId PRODUCT_ID = ProductId.of(UUID.randomUUID());
-      protected final Cart cart;
+      protected final ProductId PRODUCT_ID = new ProductId(UUID.randomUUID());
+      protected Cart cart;
+      protected EventStore<Cart, CartId> eventStore = new InMemoryEventStore<>();
 
       public when_I_rehydrate_cart_from_two_events() {
-
-         List<DomainEvent<Cart>> domainEvents = List.of(
-             new CartCreated(customerId.getId(), cartId.getId(), 0L),
-             new ProductAddedToCart(cartId.getId(), customerId.getId(), PRODUCT_ID.getId(), 3,
-                 2L));
-         InMemoryEventStream<Cart, CartId> eventStream = new InMemoryEventStream<>(domainEvents);
-
-         cart = Cart.reHydrate(eventStream);
+         eventStore.saveNewAggregate(cartId, Cart.createCart(cartId, customerId));
+         cart = Cart.reHydrate(eventStore.loadEvents(cartId).orElseThrow());
+         eventStore.updateExistingAggregate(cartId, cart.addProduct(PRODUCT_ID, 3));
+         cart = Cart.reHydrate(eventStore.loadEvents(cartId).orElseThrow());
       }
 
       @Test
       void then_cart_has_right_attributes() {
          assertThat(cart.getCustomerId()).isEqualTo(customerId);
          assertThat(cart.getCartId()).isEqualTo(cartId);
-         assertThat(cart.getContent()).containsExactly(CartItem.cartItem(PRODUCT_ID, 3));
+         assertThat(cart.getContent()).containsExactly(new CartItem(PRODUCT_ID, 3));
       }
 
       @Test
       void then_cart_has_version_corresponding_to_version_of_last_event() {
-         assertThat(cart.getVersion()).isEqualTo(2L);
+         assertThat(cart.version).isEqualTo(new Version(2));
       }
 
    }
@@ -215,9 +239,8 @@ class CartTest {
 
    @Test
    void rehydrate_cart_from_CartCreated_event() {
-      InMemoryEventStream<Cart, CartId> eventStream = new InMemoryEventStream<>(
-          List.of(new CartCreated(cartId.getId(), customerId.getId(), 1L)));
-      Cart cart = Cart.reHydrate(eventStream);
+      DomainEvents<Cart, CartId> domainEvents = Cart.createCart(cartId, customerId);
+      Cart cart = Cart.reHydrate(domainEvents);
 
       assertThat(cart.getCustomerId()).isEqualTo(customerId);
       assertThat(cart.getCartId()).isEqualTo(cartId);
@@ -227,8 +250,9 @@ class CartTest {
    @Test
    void rehydrate_cart_from_ProductAddedToCart_event_throws_an_exception() {
 
-      InMemoryEventStream<Cart, CartId> eventStream = new InMemoryEventStream<>(
-          List.of(new CartCreated(cartId.getId(), customerId.getId(), 1L)));
+      InMemoryEventStream<Cart, CartId> eventStream = new InMemoryEventStream<>(cartId,
+          version(1),
+          List.of(new CartCreated(cartId.id(), customerId.id(), version(1))));
 
       Cart cart = Cart.reHydrate(eventStream);
 

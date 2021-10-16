@@ -1,22 +1,27 @@
 package be.xl.shopping.domain.port.infrastructure;
 
-import be.xl.eventsourcing.eventstore.EventStore;
-import be.xl.eventsourcing.model.DomainEvents;
+import be.xl.architecture.Adapter;
+import be.xl.architecture.eventsourcing.eventstore.EventStore;
+import be.xl.architecture.eventsourcing.eventstore.StaleAggregateVersionException;
+import be.xl.architecture.eventsourcing.model.AggregateIdentifier;
+import be.xl.architecture.eventsourcing.model.DomainEvents;
+import be.xl.architecture.eventsourcing.model.EventSourcedAggregateRoot;
+import be.xl.architecture.eventsourcing.model.Version;
+import io.vavr.Tuple2;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.jmolecules.ddd.types.AggregateRoot;
-import org.jmolecules.ddd.types.Identifier;
 
-public class InMemoryEventStore<T extends AggregateRoot<T, ID>, ID extends Identifier> implements
+@Adapter
+public class InMemoryEventStore<T extends EventSourcedAggregateRoot<T, ID>, ID extends AggregateIdentifier> implements
     EventStore<T, ID> {
 
-   final Map<ID, DomainEvents<T, ID>> aggregateEvents = new HashMap<>();
+   final Map<ID, Tuple2<Version, DomainEvents<T, ID>>> aggregateEvents = new HashMap<>();
 
    @Override
    public Optional<DomainEvents<T, ID>> loadEvents(ID aggregateId) {
       return aggregateEvents.containsKey(aggregateId) ? Optional
-          .of(aggregateEvents.get(aggregateId)) : Optional.empty();
+          .of(aggregateEvents.get(aggregateId)._2) : Optional.empty();
    }
 
    @Override
@@ -24,13 +29,18 @@ public class InMemoryEventStore<T extends AggregateRoot<T, ID>, ID extends Ident
       if (aggregateEvents.containsKey(aggregateId)) {
          throw new IllegalStateException("Aggregate already exists ");
       }
-      aggregateEvents.put(aggregateId, events);
+      aggregateEvents.put(aggregateId, new Tuple2<>(events.getToAggregateVersion(), events));
    }
 
    @Override
-   public void updateExistingAggregate(ID aggregateId, Long version, DomainEvents<T, ID> events) {
-      DomainEvents<T, ID> domainEvents = Optional.of(aggregateEvents.get(aggregateId))
-          .orElseThrow(() -> new IllegalStateException("Aggregate already exists "));
-      aggregateEvents.put(aggregateId, domainEvents.add(events));
+   public void updateExistingAggregate(ID aggregateId, DomainEvents<T, ID> events) {
+      Tuple2<Version, DomainEvents<T, ID>> storedDomainEvents = Optional.of(aggregateEvents.get(events.aggregateId()))
+          .orElseThrow(() -> new IllegalStateException("No event stored for aggregate with ID %s".formatted(aggregateId)));
+
+      if (!storedDomainEvents._1.equals(events.fromAggregateVersion())) {
+         throw new StaleAggregateVersionException(aggregateId.getAggregateName(), storedDomainEvents._1, events.fromAggregateVersion());
+      }
+
+      aggregateEvents.put(events.aggregateId(), new Tuple2<>(events.getToAggregateVersion(), storedDomainEvents._2.withEvents(events)));
    }
 }

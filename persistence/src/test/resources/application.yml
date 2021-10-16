@@ -1,0 +1,9 @@
+spring:
+  mongo:
+    host:
+    port:
+    databaseName: shopping
+  data:
+    mongodb:
+      uri: mongodb://HOST:PORT/shopping
+      host:
