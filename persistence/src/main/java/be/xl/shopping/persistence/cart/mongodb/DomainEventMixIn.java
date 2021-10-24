@@ -1,4 +1,4 @@
-package be.xl.shopping.persistence.cart;
+package be.xl.shopping.persistence.cart.mongodb;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

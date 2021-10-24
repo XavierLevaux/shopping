@@ -1,15 +1,16 @@
-package be.xl.shopping.persistence.cart;
-
-import static org.assertj.core.api.Assertions.assertThat;
+package be.xl.shopping.persistence.cart.mongodb;
 
 import be.xl.architecture.eventsourcing.model.DomainEvent;
 import be.xl.architecture.eventsourcing.model.Version;
 import be.xl.shopping.domain.core.cart.entity.Cart;
 import be.xl.shopping.domain.core.cart.event.CartCreated;
-import java.util.UUID;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class CartEventsMapperTest {

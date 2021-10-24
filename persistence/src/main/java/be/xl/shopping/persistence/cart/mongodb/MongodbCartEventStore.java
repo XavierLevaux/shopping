@@ -1,4 +1,4 @@
-package be.xl.shopping.persistence.cart;
+package be.xl.shopping.persistence.cart.mongodb;
 
 import be.xl.architecture.Adapter;
 import be.xl.architecture.eventsourcing.eventstore.EventStore;
@@ -9,6 +9,7 @@ import be.xl.shopping.domain.core.cart.entity.Cart;
 import be.xl.shopping.domain.core.cart.entity.CartId;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

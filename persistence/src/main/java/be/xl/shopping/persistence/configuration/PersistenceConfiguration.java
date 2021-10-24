@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 @Configuration
 @ComponentScan(basePackages = {"be.xl.shopping.persistence"})
 public class PersistenceConfiguration extends AbstractMongoClientConfiguration {
+
    @Value("${spring.mongo.host}")
    private String mongoHost;
 
@@ -22,13 +23,16 @@ public class PersistenceConfiguration extends AbstractMongoClientConfiguration {
 
    @Override
    public com.mongodb.client.MongoClient mongoClient() {
-      ConnectionString connectionString = new ConnectionString(
-          String.format("mongodb://%s:%d/%s", mongoHost, mongoPort, databaseName));
+      ConnectionString connectionString = new ConnectionString(mongodbConnectionString());
       MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
           .applyConnectionString(connectionString)
           .build();
 
       return MongoClients.create(mongoClientSettings);
+   }
+
+   private String mongodbConnectionString() {
+      return String.format("mongodb://%s:%d/%s", mongoHost, mongoPort, databaseName);
    }
 
    @Override

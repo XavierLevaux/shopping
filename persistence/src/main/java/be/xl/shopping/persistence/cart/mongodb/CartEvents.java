@@ -1,4 +1,4 @@
-package be.xl.shopping.persistence.cart;
+package be.xl.shopping.persistence.cart.mongodb;
 
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;

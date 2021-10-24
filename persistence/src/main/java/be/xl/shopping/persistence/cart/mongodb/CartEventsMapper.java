@@ -1,4 +1,4 @@
-package be.xl.shopping.persistence.cart;
+package be.xl.shopping.persistence.cart.mongodb;
 
 import be.xl.architecture.eventsourcing.model.DomainEvent;
 import be.xl.architecture.eventsourcing.model.DomainEvents;

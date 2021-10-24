@@ -1,23 +1,18 @@
 package be.xl.shopping.domain.core.cart.entity;
 
-import static be.xl.architecture.eventsourcing.model.DomainEventVersionGenerator.domainEventVersionGenerator;
-import static io.vavr.collection.List.ofAll;
-
 import be.xl.architecture.eventsourcing.eventstore.EventStream;
-import be.xl.architecture.eventsourcing.model.DomainBusinessException;
-import be.xl.architecture.eventsourcing.model.DomainEvent;
-import be.xl.architecture.eventsourcing.model.DomainEventVersionGenerator;
-import be.xl.architecture.eventsourcing.model.DomainEvents;
-import be.xl.architecture.eventsourcing.model.EventSourcedAggregateRoot;
-import be.xl.architecture.eventsourcing.model.Version;
-import be.xl.architecture.eventsourcing.model.Versioned;
+import be.xl.architecture.eventsourcing.model.*;
 import be.xl.shopping.domain.core.cart.event.CartCreated;
 import be.xl.shopping.domain.core.cart.event.ProductAddedToCart;
 import be.xl.shopping.domain.core.cart.event.ProductQuantityRemovedFromCart;
 import be.xl.shopping.domain.core.cart.event.ProductRemovedFromCart;
 import be.xl.shopping.domain.core.customer.entity.CustomerId;
-import java.util.List;
 import org.jmolecules.ddd.types.AggregateRoot;
+
+import java.util.List;
+
+import static be.xl.architecture.eventsourcing.model.DomainEventVersionGenerator.domainEventVersionGenerator;
+import static io.vavr.collection.List.ofAll;
 
 public class Cart implements EventSourcedAggregateRoot<Cart, CartId>, AggregateRoot<Cart, CartId>, Versioned {
 

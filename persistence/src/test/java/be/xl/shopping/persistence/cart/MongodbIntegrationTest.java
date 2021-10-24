@@ -1,5 +1,6 @@
 package be.xl.shopping.persistence.cart;
 
+import be.xl.shopping.persistence.configuration.EventStoreConfiguration;
 import be.xl.shopping.persistence.configuration.PersistenceConfiguration;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,13 +22,14 @@ import org.testcontainers.containers.MongoDBContainer;
 @ContextConfiguration(
     initializers = MongodbIntegrationTest.Initializer.class,
     classes = {
-        PersistenceConfiguration.class
+        PersistenceConfiguration.class,
+        EventStoreConfiguration.class
     }
 )
-abstract class MongodbIntegrationTest {
+public abstract class MongodbIntegrationTest {
 
    private static final Integer MONGO_PORT = 27017;
-   private static final String MONGO_DOCKER_IMAGE = "mongo:4.4.6";
+   private static final String MONGO_DOCKER_IMAGE = "mongo:5.0.3";
 
    protected static MongoDBContainer mongo;
 

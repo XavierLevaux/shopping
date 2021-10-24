@@ -1,4 +1,4 @@
-package be.xl.shopping.persistence.cart;
+package be.xl.shopping.persistence.cart.mongodb;
 
 import org.jmolecules.ddd.annotation.Repository;
 import org.springframework.data.mongodb.repository.MongoRepository;

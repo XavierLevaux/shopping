@@ -1,9 +1,4 @@
-package be.xl.shopping.persistence.cart;
-
-import static be.xl.architecture.eventsourcing.model.Version.initialVersion;
-import static be.xl.architecture.eventsourcing.model.Version.version;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
+package be.xl.shopping.persistence.cart.mongodb;
 
 import be.xl.architecture.eventsourcing.eventstore.StaleAggregateVersionException;
 import be.xl.architecture.eventsourcing.model.DomainEvents;
@@ -12,15 +7,22 @@ import be.xl.shopping.domain.core.cart.entity.CartId;
 import be.xl.shopping.domain.core.cart.event.CartCreated;
 import be.xl.shopping.domain.core.cart.event.ProductAddedToCart;
 import be.xl.shopping.domain.core.cart.event.ProductQuantityRemovedFromCart;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import be.xl.shopping.persistence.cart.MongodbIntegrationTest;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static be.xl.architecture.eventsourcing.model.Version.initialVersion;
+import static be.xl.architecture.eventsourcing.model.Version.version;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 
 @SpringBootTest

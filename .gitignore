@@ -13,3 +13,5 @@ target/
 
 ### Gradle
 .gradle/
+
+.DS_Store

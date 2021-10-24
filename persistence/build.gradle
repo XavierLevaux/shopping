@@ -9,25 +9,48 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    occurent_version = '0.13.1'
+    junit_jupiter_version = '5.8.1'
+    spring_boot_version = '2.5.5'
+    spring_version =  '5.3.11'
+    mockito_version = '4.0.0'
+    testcontainers_version = '1.16.0'
+    jmolecules_version = '1.3.0'
+    jackson_version = '2.13.0'
+    apache_commons_version = '3.12.0'
+    spring_data_mongodb_version = '3.2.4'
+    cloudevents_version = '2.2.0'
+    vavr_version = '0.10.4'
+}
+
 dependencies {
     implementation project(':architecture')
     implementation project(':domain')
 
-    implementation group: 'org.springframework', name: 'spring-core', version: '5.3.8'
-    implementation group: "org.springframework.boot", name: "spring-boot-starter-data-mongodb", version: "2.5.2"
-    implementation 'org.springframework.data:spring-data-mongodb:3.2.2'
-    implementation('org.jmolecules:jmolecules-ddd:1.2.0')
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    implementation("org.springframework:spring-core:${spring_version}")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:${spring_boot_version}")
+    implementation("org.springframework.data:spring-data-mongodb:${spring_data_mongodb_version}")
+    implementation("org.jmolecules:jmolecules-ddd:${jmolecules_version}")
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jackson_version}")
+    implementation("org.apache.commons:commons-lang3:${apache_commons_version}")
 
-    testImplementation group: "org.springframework.boot", name: "spring-boot-starter-test", version: "2.5.2"
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.2')
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine')
-    testImplementation('org.assertj:assertj-core:3.20.2')
-    testImplementation 'org.mockito:mockito-core:3.11.1'
-    testImplementation 'org.mockito:mockito-junit-jupiter:3.11.1'
-    testImplementation "org.testcontainers:junit-jupiter:1.15.3"
-    testImplementation 'org.testcontainers:mongodb:1.15.3'
+    implementation("io.vavr:vavr:${vavr_version}")
+    implementation("org.occurrent:eventstore-api:${occurent_version}")
+    implementation("org.occurrent:eventstore-mongodb-spring-blocking:${occurent_version}")
+    implementation("org.occurrent:cloudevent-converter-jackson:${occurent_version}")
+    implementation("io.cloudevents:cloudevents-json-jackson:${cloudevents_version}")
+    implementation("org.occurrent:durable-subscription:${occurent_version}")
+    implementation("org.occurrent:subscription-mongodb-spring-blocking-position-storage:${occurent_version}")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test:${spring_boot_version}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junit_jupiter_version}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit_jupiter_version}")
+    testImplementation('org.assertj:assertj-core:3.21.0')
+    testImplementation("org.mockito:mockito-core:${mockito_version}")
+    testImplementation ("org.mockito:mockito-junit-jupiter:${mockito_version}")
+    testImplementation("org.testcontainers:junit-jupiter:${testcontainers_version}")
+    testImplementation("org.testcontainers:mongodb:${testcontainers_version}")
 }
 
 test {
