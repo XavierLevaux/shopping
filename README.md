@@ -20,6 +20,7 @@ We will try to express DDD principles to build domain.
 ## Build
 
 Project uses gradle for building runtime.
+This project requires a Java JDK Version 17.
 
 ```bash
 ./gradle build
