@@ -8,7 +8,7 @@ import be.xl.shopping.domain.core.cart.event.CartCreated;
 import be.xl.shopping.domain.core.cart.event.ProductAddedToCart;
 import be.xl.shopping.domain.core.cart.event.ProductQuantityRemovedFromCart;
 import be.xl.shopping.persistence.cart.EventStoreAbstractIntegrationTest;
-import be.xl.shopping.persistence.cart.occurrent.OccurrentEventStore;
+import be.xl.shopping.persistence.cart.occurrent.CartEventStore;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
@@ -28,14 +28,14 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 @SpringBootTest
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class OccurrentEventStoreIntegrationTest extends EventStoreAbstractIntegrationTest {
+class CartEventStoreIntegrationTest extends EventStoreAbstractIntegrationTest {
 
     protected final UUID cartId = UUID.randomUUID();
     protected final UUID customerId = UUID.randomUUID();
     protected final UUID productId = UUID.randomUUID();
 
     @Autowired
-    private OccurrentEventStore eventStore;
+    private CartEventStore eventStore;
 
     @Nested
     class Given_I_have_domain_events {
